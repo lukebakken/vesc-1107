@@ -1,4 +1,4 @@
-.PHONY: clean down up perms rmq-perms
+.PHONY: build clean down up perms rmq-perms
 
 DOCKER_FRESH ?= false
 RABBITMQ_DOCKER_TAG ?= rabbitmq:3-management
@@ -9,12 +9,17 @@ clean: perms
 down:
 	docker compose down
 
-up: rmq-perms
+build:
 ifeq ($(DOCKER_FRESH),true)
 	docker compose build --no-cache --pull --build-arg RABBITMQ_DOCKER_TAG=$(RABBITMQ_DOCKER_TAG)
-	docker compose up --pull always
 else
 	docker compose build --build-arg RABBITMQ_DOCKER_TAG=$(RABBITMQ_DOCKER_TAG)
+endif
+
+up: rmq-perms build
+ifeq ($(DOCKER_FRESH),true)
+	docker compose up --pull always
+else
 	docker compose up
 endif
 
